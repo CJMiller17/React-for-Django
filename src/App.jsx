@@ -1,18 +1,86 @@
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import axios from "axios"
 
-const Title = () => {
+const CustomerList = ({ customers }) => {
+  return  customers.length > 0 ? (
+    <div>
+      
+      <h2>Instructors</h2>
+      {customers.map(inst => {
+        return (
+          <div key={inst.id}>
+            {inst.id} - {inst.first_name} {inst.last_name}
+          </div>
+        );
+      })}
+
+    </div>
+  ) : (
+      <div>
+        Loading...
+      </div>
+  )
+
+}
+
+const NewCustomer = () => {
+  const [first_name, setName] = useState("")
+
+  const createCustomer = () => {
+    axios.post("http://127.0.0.1:8000/customer/", {
+      first_name: first_name
+    })
+      .then(response => {
+        console.log("Response: ", response)
+      })
+      .catch(error => console.log("Error: ", error))
+  }
+  
   return (
-    <h1>
-      Hello World!
-    </h1>
+    <div>
+      <h2> Create a New Customer</h2>
+      <input
+        type="text"
+        onChange={e => setName(e.target.value)}
+        placeholder="Enter Name"
+        value={first_name}
+      />
+      <button
+      onClick={() => createCustomer()}
+      >
+        Create Customer
+      </button>
+    </div>
   )
 }
 
+
 function App() {
+  
+  const [customers, setCustomers] = useState([])
+
+  useEffect(() => {
+    getCustomers()
+  }, [])
+  
+  const getCustomers = () => {
+    console.log('Here!')
+    axios.get("http://127.0.0.1:8000/customer/")
+      .then(response => {
+        console.log("Response: ", response)
+        setCustomers(response.data)
+      })
+      
+      .catch(error => console.log('ERROR: ', error))
+  }
+
   return (
     <div className="p-5">
-      <Link to='/about'>About</Link>
-      <Title />
+      
+      <CustomerList customers={customers} />
+      <NewCustomer />
+
     </div>
   )
 }
