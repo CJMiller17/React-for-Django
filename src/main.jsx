@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { Children } from 'react'
+import { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
   createBrowserRouter,
@@ -15,6 +16,9 @@ import App from './App'
 import ErrorPage from './ErrorPage'
 import Header from './Header'
 import Footer from './Footer'
+import Login from './Login'
+
+import { AuthContext } from './authContext'
 
 
 function Layout() {
@@ -35,18 +39,41 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: '/',
+        path: "/",
         element: <App />,
-        errorElement: <ErrorPage />
+        errorElement: <ErrorPage />,
       },
       {
-        path: '/about',
-        element: <About />
+        path: "/about",
+        element: <About />,
       },
-    ]
+      {
+        path: "/login",
+        element: <Login />,
+      },
+    ],
+  },
+]);
+
+const AuthContextProvider = ({ children }) => {
+  const [accessToken, setAccessToken] = useState("")
+
+  const auth = {
+    accessToken,
+    setAccessToken
   }
-])
+
+  return (
+    <AuthContext.Provider value={{ auth }}>
+      {children}
+    </AuthContext.Provider>
+  )
+
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router} />
+  <AuthContextProvider>
+    <RouterProvider router={router} />
+  </AuthContextProvider>
+  
 )
